@@ -70,19 +70,32 @@ function createIcon(classes) {
   return icon;
 }
 function removeItem(e) {
-  if (e.target.parentElement.classList.contains('remove-item')) {
+  if (e.target.parentElement.classList.contains('remove-item')) 
+  {
     if(confirm(`Are you sure you want to remove the item ?`))
     {
       e.target.parentElement.parentElement.remove();
+      removeItemFromStorage(e.target.parentElement.parentElement.textContent);
     }
     checkUI();
   }
 }
+function removeItemFromStorage(item) {
+  let itemsFromStorage = getItemsFromStorage();
+
+  // Filter out item to be removed
+  itemsFromStorage = itemsFromStorage.filter((i) => i !== item);
+
+  // Re-set to localstorage
+  localStorage.setItem('items', JSON.stringify(itemsFromStorage));
+}
+
 function clearItems() 
 {
   while (itemList.firstChild) {
     itemList.removeChild(itemList.firstChild);
   }
+  localStorage.clear();
   checkUI();
 }
 function checkUI()
