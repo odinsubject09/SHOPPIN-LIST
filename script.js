@@ -3,6 +3,8 @@ const itemInput = document.getElementById('item-input');
 const itemList = document.getElementById('item-list');
 const clearBtn = document.getElementById('clear');
 const itemFilter = document.getElementById('filter');
+const formBtn = itemForm.querySelector('button');
+
 function displayItems() {
   const itemsFromStorage = getItemsFromStorage();
   itemsFromStorage.forEach((item) => addItemToDOM(item));
@@ -18,6 +20,21 @@ function onAddItemSubmit(e) {
     alert('Please add an item');
     return;
   }
+  if (isEditMode) {
+    const itemToEdit = itemList.querySelector('.edit-mode');
+
+    removeItemFromStorage(itemToEdit.textContent);
+    itemToEdit.classList.remove('edit-mode');
+    itemToEdit.remove();
+    isEditMode = false;
+  } 
+  else {
+    if (checkIfItemExists(newItem)) {
+      alert(`The item "${newItem}" already exists!`);
+      return;
+    }
+  }
+    checkUI();
   addItemToDOM(newItem);
   addItemToStorage(newItem);
   // Create list item
@@ -76,9 +93,28 @@ function removeItem(e) {
     {
       e.target.parentElement.parentElement.remove();
       removeItemFromStorage(e.target.parentElement.parentElement.textContent);
+      checkUI();
+
     }
-    checkUI();
+    }
+  else if (e.target.closest('li')) {
+    setItemToEdit(e.target);
   }
+
+}
+function setItemToEdit(item)
+{
+  isEditMode = true;
+
+  itemList
+    .querySelectorAll('li')
+    .forEach((i) => i.classList.remove('edit-mode'));
+
+  item.classList.add('edit-mode');
+  formBtn.innerHTML = '<i class="fa-solid fa-pen"></i>   Update Item';
+  formBtn.style.backgroundColor = '#228B22';
+  itemInput.value = item.textContent;
+
 }
 function removeItemFromStorage(item) {
   let itemsFromStorage = getItemsFromStorage();
@@ -111,7 +147,17 @@ function checkUI()
     clearBtn.style.display = 'block';
     itemFilter.style.display = 'block';
   }
+  formBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Item';
+  formBtn.style.backgroundColor = '#333';
+
+  isEditMode = false;
+
 }
+function checkIfItemExists(item) {
+  const itemsFromStorage = getItemsFromStorage();
+  return itemsFromStorage.includes(item);
+}
+
 function filterItems(e) {
   const items = itemList.querySelectorAll('li');
   const text = e.target.value.toLowerCase();
